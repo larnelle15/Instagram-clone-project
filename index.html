@@ -31,7 +31,7 @@
 
         /* Header Styles */
         .instagram-header {
-            background: white;
+            background: rgb(255, 255, 255);
             padding: 12px 0;
             border-bottom: 1px solid #dbdbdb;
             position: fixed;
@@ -52,7 +52,7 @@
         .instagram-logo {
             font-family: 'Grand Hotel', cursive;
             font-size: 28px;
-            color: #262626;
+            color: #e562d2;
             text-decoration: none;
         }
 
@@ -373,6 +373,8 @@
             gap: 7px;
         }
 
+        
+
         /* Profile Page Styles */
         .profile-header {
             display: flex;
@@ -452,6 +454,7 @@
             font-size: 12px;
             font-weight: 600;
             letter-spacing: 1px;
+            border-top: 1px solid transparent;
         }
 
         .profile-tab.active {
@@ -460,13 +463,64 @@
             margin-top: -1px;
         }
 
-        .profile-grid {
+        .profile-grid-container {
+            max-width: 935px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .profile-grid, .liked-posts-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 28px;
-            padding: 0 20px;
-            max-width: 935px;
-            margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        .profile-grid.hidden, .liked-posts-grid.hidden {
+            display: none;
+        }
+
+        .post-item {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .post-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .post-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .post-item:hover .post-overlay {
+            opacity: 1;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 30px;
+            color: white;
+        }
+
+        .post-stat {
+            display: flex;
+            align-items: center;
+            gap: 7px;
         }
 
         /* Media Queries */
@@ -674,43 +728,47 @@
     <!-- Profile Page -->
     <div class="page" id="profile-page">
         <div class="profile-header">
-            <img src="https://via.placeholder.com/150" class="profile-avatar" alt="Profile">
+            <img src="assets/Larnelle.png" class="profile-avatar" alt="Profile">
             <div class="profile-info">
                 <div class="profile-actions">
-                    <h1 class="profile-username">username</h1>
+                    <h1 class="profile-username">Larnelle Ankunda</h1>
                     <button class="edit-profile-button">Edit Profile</button>
                     <i class="material-icons">settings</i>
                 </div>
                 <div class="profile-stats">
                     <div class="profile-stat">
-                        <span class="profile-stat-number">156</span> posts
+                        <span class="profile-stat-number">6</span> posts
                     </div>
                     <div class="profile-stat">
-                        <span class="profile-stat-number">1.2k</span> followers
+                        <span class="profile-stat-number">200</span> followers
                     </div>
                     <div class="profile-stat">
-                        <span class="profile-stat-number">1.1k</span> following
+                        <span class="profile-stat-number">120</span> following
                     </div>
                 </div>
                 <div class="profile-bio">
-                    <div class="profile-name">Full Name</div>
-                    <div>Bio description goes here 📸✨</div>
-                    <div>www.website.com</div>
+                    <div class="profile-name">Larnelle Ankunda</div>
+                    <div>Coding and photography</div>
+                    <div>https://larnelleankunda.myportfolio.com</div>
                 </div>
             </div>
         </div>
         <div class="profile-tabs">
-            <div class="profile-tab active">
+            <div class="profile-tab active" data-tab="posts">
                 <i class="material-icons">grid_on</i> Posts
             </div>
-            <div class="profile-tab">
+            <div class="profile-tab" data-tab="saved">
                 <i class="material-icons">bookmark_border</i> Saved
             </div>
-            <div class="profile-tab">
-                <i class="material-icons">account_box</i> Tagged
+            <div class="profile-tab" data-tab="liked">
+                <i class="material-icons">favorite_border</i> Liked
             </div>
         </div>
-        <div class="profile-grid" id="profile-grid"></div>
+        <div class="profile-grid-container">
+            <div class="profile-grid" id="posts-grid"></div>
+            <div class="liked-posts-grid hidden" id="liked-posts-grid"></div>
+            <div class="saved-posts-grid hidden" id="saved-posts-grid"></div>
+        </div>
     </div>
 
     <!-- Story Modal -->
@@ -728,37 +786,375 @@
 
     <script>
         // Mock data
-        const posts = [
-            {
-                id: 1,
-                username: 'johndoe',
-                userAvatar: 'https://via.placeholder.com/32',
-                location: 'New York, NY',
-                image: 'https://source.unsplash.com/random/600x600?1',
-                likes: 1234,
-                caption: 'Living my best life! 🌟 #lifestyle #nyc',
-                comments: 48,
-                timestamp: '2 HOURS AGO'
-            },
-            {
-                id: 2,
-                username: 'janedoe',
-                userAvatar: 'https://via.placeholder.com/32',
-                location: 'Los Angeles, CA',
-                image: 'https://source.unsplash.com/random/600x600?2',
-                likes: 5678,
-                caption: 'Beach vibes only 🌊 #summer #la',
-                comments: 92,
-                timestamp: '5 HOURS AGO'
-            }
-        ];
 
-        const stories = Array.from({ length: 10 }, (_, i) => ({
-            id: i + 1,
-            username: `user${i + 1}`,
-            avatar: `https://via.placeholder.com/64?text=User${i + 1}`,
-            image: `https://source.unsplash.com/random/400x700?${i + 1}`
-        }));
+        const currentUser = {
+    username: 'larnelle.codes',
+    fullName: 'Larnelle Ankunda',
+    avatar: 'assets/Larnelle.png',
+    bio: 'Coding and photography',
+    website: 'https://larnelleankunda.myportfolio.com',
+    email: 'larnelle@example.com',
+    phone: '+1234567890',
+    gender: 'Male',
+    posts: [
+        {
+            id: 1,
+            image: 'https://images.unsplash.com/photo-1593016605825-8ceaf5b0802e',
+            caption: 'Film is not dead 📸 #analog #filmphotography',
+            likes: 89,
+            comments: 12
+        },
+        {
+            id: 2,
+            image: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2',
+            caption: 'Late night coding session 💻 #webdev #javascript',
+            likes: 156,
+            comments: 8
+        },
+        {
+            id: 3,
+            image: 'https://images.unsplash.com/photo-1629795742763-08246c0e4d81',
+            caption: 'Vintage vibes with my Leica M6 🎞️ #35mm #streetphotography',
+            likes: 203,
+            comments: 15
+        },
+        {
+            id: 4,
+            image: 'https://images.unsplash.com/photo-1537432376769-00f5c2f4c8d2',
+            caption: 'Development environment setup 🖥️ #vscode #coding',
+            likes: 167,
+            comments: 21
+        },
+        {
+            id: 5,
+            image: 'https://images.unsplash.com/photo-1583392522789-0dbf94b07c81',
+            caption: 'Street shooting with Portra 400 🎞️ #filmisnotdead #analog',
+            likes: 245,
+            comments: 19
+        },
+        {
+            id: 6,
+            image: 'https://images.unsplash.com/photo-1555099962-4199c345e5dd',
+            caption: 'Clean code, clean mind 👨‍💻 #programming #setup',
+            likes: 178,
+            comments: 23
+        }
+    ],
+    savedPosts: [],
+    likedPosts: []
+};
+
+
+// Enhanced posts data with real images
+const posts = [
+    {
+        id: 1,
+        username: 'traveler',
+        userAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=32',
+        location: 'Bali, Indonesia',
+        image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600',
+        likes: 1234,
+        caption: 'Paradise found 🌴 #bali #vacation',
+        comments: [
+            { username: 'user1', text: 'Looks amazing! 😍' },
+            { username: 'user2', text: 'Enjoy your trip!' }
+        ],
+        timestamp: '2 HOURS AGO',
+        isLiked: false,
+        isSaved: false
+    },
+    {
+        id: 2,
+        username: 'foodie',
+        userAvatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=32',
+        location: 'Paris, France',
+        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600',
+        likes: 5678,
+        caption: 'Breakfast in Paris 🥐 #foodie #paris',
+        comments: [
+            { username: 'chef', text: 'Looks delicious!' },
+            { username: 'traveler', text: 'My favorite café!' }
+        ],
+        timestamp: '5 HOURS AGO',
+        isLiked: false,
+        isSaved: false
+    }
+];
+
+const newStyles = `
+    /* Edit Profile Modal Styles */
+    .edit-profile-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .edit-profile-modal.active {
+        display: flex;
+    }
+
+    .edit-profile-container {
+        background: white;
+        width: 100%;
+        max-width: 500px;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .edit-profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .edit-profile-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .form-group input, .form-group textarea {
+        padding: 8px;
+        border: 1px solid #dbdbdb;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    /* Direct Messages Styles */
+    .dm-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .dm-modal.active {
+        display: flex;
+    }
+
+    .dm-container {
+        background: white;
+        width: 100%;
+        max-width: 900px;
+        height: 80vh;
+        border-radius: 12px;
+        display: grid;
+        grid-template-columns: 350px 1fr;
+    }
+
+    .dm-header {
+        padding: 20px;
+        border-bottom: 1px solid #dbdbdb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dm-search {
+        padding: 10px;
+        border-bottom: 1px solid #dbdbdb;
+    }
+
+    .dm-search input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #dbdbdb;
+        border-radius: 4px;
+    }
+
+    .dm-list {
+        overflow-y: auto;
+    }
+
+    .dm-chat {
+        border-left: 1px solid #dbdbdb;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dm-chat-header {
+        padding: 20px;
+        border-bottom: 1px solid #dbdbdb;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .dm-chat-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+    }
+
+    .dm-chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .dm-message {
+        max-width: 70%;
+        padding: 8px 12px;
+        border-radius: 18px;
+        font-size: 14px;
+    }
+
+    .dm-message.sent {
+        background: #0095f6;
+        color: white;
+        align-self: flex-end;
+    }
+
+    .dm-message.received {
+        background: #efefef;
+        align-self: flex-start;
+    }
+
+    .dm-chat-input {
+        padding: 20px;
+        border-top: 1px solid #dbdbdb;
+        display: flex;
+        gap: 10px;
+    }
+
+    .dm-chat-input input {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #dbdbdb;
+        border-radius: 4px;
+    }
+
+    .dm-chat-input button {
+        padding: 8px 16px;
+        background: #0095f6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    /* Liked Posts Grid */
+    .liked-posts-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        padding: 0 20px;
+        max-width: 935px;
+        margin: 0 auto;
+    }
+`;
+
+// Enhanced stories data
+const stories = [
+    {
+        id: 1,
+        username: 'traveler',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=64',
+        images: [
+            'https://images.unsplash.com/photo-1502791451862-7bd8c1df43a7?w=400',
+            'https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=400'
+        ]
+    },
+    {
+        id: 2,
+        username: 'photographer',
+        avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=64',
+        images: [
+            'https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?w=400',
+            'https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=400'
+        ]
+    }
+];
+
+        // const posts = [
+        //     {
+        //         id: 1,
+        //         username: 'johndoe',
+        //         userAvatar: 'https://via.placeholder.com/32',
+        //         location: 'New York, NY',
+        //         image: 'https://source.unsplash.com/random/600x600?1',
+        //         likes: 1234,
+        //         caption: 'Living my best life! 🌟 #lifestyle #nyc',
+        //         comments: 48,
+        //         timestamp: '2 HOURS AGO'
+        //     },
+        //     {
+        //         id: 2,
+        //         username: 'janedoe',
+        //         userAvatar: 'https://via.placeholder.com/32',
+        //         location: 'Los Angeles, CA',
+        //         image: 'https://source.unsplash.com/random/600x600?2',
+        //         likes: 5678,
+        //         caption: 'Beach vibes only 🌊 #summer #la',
+        //         comments: 92,
+        //         timestamp: '5 HOURS AGO'
+        //     }
+        // ];
+
+        // const stories = Array.from({ length: 10 }, (_, i) => ({
+        //     id: i + 1,
+        //     username: `user${i + 1}`,
+        //     avatar: `https://via.placeholder.com/64?text=User${i + 1}`,
+        //     image: `https://source.unsplash.com/random/400x700?${i + 1}`
+        // }));
+ 
+        const dmModalHTML = `
+    <div class="dm-modal" id="dm-modal">
+        <div class="dm-container">
+            <div class="dm-header">
+                <h2>Messages</h2>
+                <i class="material-icons dm-close">close</i>
+            </div>
+            <div class="dm-search">
+                <input type="text" placeholder="Search messages">
+            </div>
+            <div class="dm-list" id="dm-list">
+                <!-- Messages will be inserted here -->
+            </div>
+            <div class="dm-chat" id="dm-chat">
+                <div class="dm-chat-header">
+                    <img src="" alt="" class="dm-chat-avatar">
+                    <span class="dm-chat-username"></span>
+                </div>
+                <div class="dm-chat-messages" id="dm-chat-messages">
+                    <!-- Chat messages will be inserted here -->
+                </div>
+                <div class="dm-chat-input">
+                    <input type="text" placeholder="Message...">
+                    <button>Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+`;
 
         const explorePhotos = Array.from({ length: 12 }, (_, i) => ({
             id: i + 1,
@@ -782,56 +1178,187 @@
             });
         });
 
+
+        const newFunctions = `
+    // Like/Unlike post function
+    function toggleLike(postId) {
+        const post = posts.find(p => p.id === postId);
+        if (post) {
+            post.isLiked = !post.isLiked;
+            post.likes += post.isLiked ? 1 : -1;
+            
+            if (post.isLiked) {
+                currentUser.likedPosts.push(post);
+            } else {
+                currentUser.likedPosts = currentUser.likedPosts.filter(p => p.id !== postId);
+            }
+            
+            updatePostUI(postId);
+            updateLikedPostsGrid();
+        }
+    }
+
+    // Save/Unsave post function
+    function toggleSave(postId) {
+        const post = posts.find(p => p.id === postId);
+        if (post) {
+            post.isSaved = !post.isSaved;
+            
+            if (post.isSaved) {
+                currentUser.savedPosts.push(post);
+            } else {
+                currentUser.savedPosts = currentUser.savedPosts.filter(p => p.id !== postId);
+            }
+            
+            updatePostUI(postId);
+        }
+    }
+
+    // Update post UI
+    function updatePostUI(postId) {
+        const postElement = document.querySelector(\`[data-post-id="\${postId}"]\`);
+        if (postElement) {
+            const post = posts.find(p => p.id === postId);
+            const likeButton = postElement.querySelector('.like-button .material-icons');
+            const saveButton = postElement.querySelector('.save-button .material-icons');
+            const likesCount = postElement.querySelector('.post-likes');
+            
+            likeButton.textContent = post.isLiked ? 'favorite' : 'favorite_border';
+            likeButton.classList.toggle('liked', post.isLiked);
+            saveButton.textContent = post.isSaved ? 'bookmark' : 'bookmark_border';
+            likesCount.textContent = \`\${post.likes.toLocaleString()} likes\`;
+        }
+    }
+
+    // Edit Profile Functions
+    function showEditProfileModal() {
+        const modal = document.getElementById('edit-profile-modal');
+        const form = document.getElementById('edit-profile-form');
+        
+        // Fill form with current user data
+        form.elements.fullName.value = currentUser.fullName;
+        form.elements.username.value = currentUser.username;
+        form.elements.website.value = currentUser.website;
+        form.elements.bio.value = currentUser.bio;
+        form.elements.email.value = currentUser.email;
+        form.elements.phone.value = currentUser.phone;
+        form.elements.gender.value = currentUser.gender;
+        
+        modal.classList.add('active');
+    }
+
+    function saveProfile(event) {
+        event.preventDefault();
+        const form = event.target;
+        
+        // Update user data
+        currentUser.fullName = form.elements.fullName.value;
+        currentUser.username = form.elements.username.value;
+        currentUser.website = form.elements.website.value;
+        currentUser.bio = form.elements.bio.value;
+        currentUser.email = form.elements.email.value;
+        currentUser.phone = form.elements.phone.value;
+        currentUser.gender = form.elements.gender.value;
+        
+        // Update UI
+        updateProfileUI();
+        
+        // Close modal
+        document.getElementById('edit-profile-modal').classList.remove('active');
+    }
+
+    // Direct Messages Functions
+    function showDirectMessages() {
+        document.getElementById('dm-modal').classList.add('active');
+    }
+
+    function sendMessage(userId, message) {
+        const chat = chats.find(c => c.userId === userId);
+        if (chat) {
+            chat.messages.push({
+                id: Date.now(),
+                text: message,
+                sent: true,
+                timestamp: new Date().toISOString()
+            });
+            updateChatUI(userId);
+        }
+    }
+
+    // Initialize new features
+    function initializeNewFeatures() {
+        // Add event listeners for like/save buttons
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const postId = parseInt(button.closest('.post').dataset.postId);
+                toggleLike(postId);
+            });
+        });
+
+        document.querySelectorAll('.save-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const postId = parseInt(button.closest('.post').dataset.postId);
+                toggleSave(postId);
+            });
+        });
+
+        // Add event listener for edit profile button
+        document.querySelector('.edit-profile-button').addEventListener('click', showEditProfileModal);
+
+        // Add event listener for messages button
+        document.querySelector('[data-page="messages"]').addEventListener('click', showDirectMessages);
+    }
+`;
         // Create post HTML
         function createPostHTML(post) {
-            return `
-                <article class="post">
-                    <div class="post-header">
-                        <div class="post-user">
-                            <img src="${post.userAvatar}" class="post-avatar" alt="${post.username}">
-                            <div class="post-user-info">
-                                <div class="post-username">${post.username}</div>
-                                <div class="post-location">${post.location}</div>
-                            </div>
-                        </div>
-                        <div class="post-more">
-                            <i class="material-icons">more_horiz</i>
-                        </div>
+    return `
+        <article class="post" data-post-id="${post.id}">
+            <div class="post-header">
+                <div class="post-user">
+                    <img src="${post.userAvatar}" class="post-avatar" alt="${post.username}">
+                    <div class="post-user-info">
+                        <div class="post-username">${post.username}</div>
+                        <div class="post-location">${post.location}</div>
                     </div>
-                    <div class="post-image-container">
-                        <img src="${post.image}" class="post-image" alt="Post">
+                </div>
+                <div class="post-more">
+                    <i class="material-icons">more_horiz</i>
+                </div>
+            </div>
+            <div class="post-image-container">
+                <img src="${post.image}" class="post-image" alt="Post">
+            </div>
+            <div class="post-actions">
+                <div class="post-actions-left">
+                    <div class="post-action like-button" onclick="toggleLike(${post.id})">
+                        <i class="material-icons ${post.isLiked ? 'liked' : ''}">${post.isLiked ? 'favorite' : 'favorite_border'}</i>
                     </div>
-                    <div class="post-actions">
-                        <div class="post-actions-left">
-                            <div class="post-action like-button">
-                                <i class="material-icons">favorite_border</i>
-                            </div>
-                            <div class="post-action">
-                                <i class="material-icons">chat_bubble_outline</i>
-                            </div>
-                            <div class="post-action">
-                                <i class="material-icons">send</i>
-                            </div>
-                        </div>
-                        <div class="post-action">
-                            <i class="material-icons">bookmark_border</i>
-                        </div>
+                    <div class="post-action">
+                        <i class="material-icons">chat_bubble_outline</i>
                     </div>
-                    <div class="post-likes">${post.likes.toLocaleString()} likes</div>
-                    <div class="post-caption">
-                        <span class="post-username">${post.username}</span> ${post.caption}
+                    <div class="post-action">
+                        <i class="material-icons">send</i>
                     </div>
-                    <div class="post-comments-link">
-                        View all ${post.comments} comments
-                    </div>
-                    <div class="post-time">${post.timestamp}</div>
-                    <div class="post-add-comment">
-                        <input type="text" class="comment-input" placeholder="Add a comment...">
-                        <div class="post-comment-button">Post</div>
-                    </div>
-                </article>
-            `;
-        }
+                </div>
+                <div class="post-action save-button" onclick="toggleSave(${post.id})">
+                    <i class="material-icons">${post.isSaved ? 'bookmark' : 'bookmark_border'}</i>
+                </div>
+            </div>
+            <div class="post-likes">${post.likes.toLocaleString()} likes</div>
+            <div class="post-caption">
+                <span class="post-username">${post.username}</span> ${post.caption}
+            </div>
+            <div class="post-comments-link">
+                View all ${post.comments.length} comments
+            </div>
+            <div class="post-time">${post.timestamp}</div>
+            <div class="post-add-comment">
+                <input type="text" class="comment-input" placeholder="Add a comment...">
+                <div class="post-comment-button">Post</div>
+            </div>
+        </article>
+    `;
+}
 
         // Create story HTML
         function createStoryHTML(story) {
@@ -844,6 +1371,144 @@
                 </div>
             `;
         }
+
+        function updateProfileGrids() {
+    // Update posts grid with user's posts
+    const postsGrid = document.getElementById('posts-grid');
+    if (postsGrid) {
+        postsGrid.innerHTML = currentUser.posts.map(post => `
+            <div class="post-item">
+                <img src="${post.image}" alt="${post.caption}">
+                <div class="post-overlay">
+                    <div class="post-stats">
+                        <div class="post-stat">
+                            <i class="material-icons">favorite</i>
+                            ${post.likes}
+                        </div>
+                        <div class="post-stat">
+                            <i class="material-icons">chat_bubble</i>
+                            ${post.comments}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+
+            // Update liked posts grid
+            const likedPostsGrid = document.getElementById('liked-posts-grid');
+            likedPostsGrid.innerHTML = currentUser.likedPosts.map(post => `
+                <div class="post-item">
+                    <img src="${post.image}" alt="${post.caption}">
+                    <div class="post-overlay">
+                        <div class="post-stats">
+                            <div class="post-stat">
+                                <i class="material-icons">favorite</i>
+                                ${post.likes}
+                            </div>
+                            <div class="post-stat">
+                                <i class="material-icons">chat_bubble</i>
+                                ${post.comments}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update saved posts grid
+            const savedPostsGrid = document.getElementById('saved-posts-grid');
+            savedPostsGrid.innerHTML = currentUser.savedPosts.map(post => `
+                <div class="post-item">
+                    <img src="${post.image}" alt="${post.caption}">
+                    <div class="post-overlay">
+                        <div class="post-stats">
+                            <div class="post-stat">
+                                <i class="material-icons">favorite</i>
+                                ${post.likes}
+                            </div>
+                            <div class="post-stat">
+                                <i class="material-icons">chat_bubble</i>
+                                ${post.comments}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleProfileTab(tabName) {
+            // Update tab styles
+            document.querySelectorAll('.profile-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+
+            // Show/hide appropriate grid
+            document.getElementById('posts-grid').classList.toggle('hidden', tabName !== 'posts');
+            document.getElementById('liked-posts-grid').classList.toggle('hidden', tabName !== 'liked');
+            document.getElementById('saved-posts-grid').classList.toggle('hidden', tabName !== 'saved');
+        }
+
+        // Modify the toggleLike function to update grids
+        function toggleLike(postId) {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    post.isLiked = !post.isLiked;
+    post.likes += post.isLiked ? 1 : -1;
+    
+    // Update currentUser's likedPosts
+    if (post.isLiked) {
+        if (!currentUser.likedPosts.find(p => p.id === postId)) {
+            currentUser.likedPosts.push(post);
+        }
+    } else {
+        currentUser.likedPosts = currentUser.likedPosts.filter(p => p.id !== postId);
+    }
+    
+    // Update UI
+    updatePostUI(postId);
+    updateProfileGrids();
+}
+
+        // Modify the toggleSave function to update grids
+        function toggleSave(postId) {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    post.isSaved = !post.isSaved;
+    
+    // Update currentUser's savedPosts
+    if (post.isSaved) {
+        if (!currentUser.savedPosts.find(p => p.id === postId)) {
+            currentUser.savedPosts.push(post);
+        }
+    } else {
+        currentUser.savedPosts = currentUser.savedPosts.filter(p => p.id !== postId);
+    }
+    
+    // Update UI
+    updatePostUI(postId);
+    updateProfileGrids();
+}
+
+function updatePostUI(postId) {
+    const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!postElement) return;
+
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    const likeButton = postElement.querySelector('.like-button .material-icons');
+    const saveButton = postElement.querySelector('.save-button .material-icons');
+    const likesCount = postElement.querySelector('.post-likes');
+    
+    likeButton.textContent = post.isLiked ? 'favorite' : 'favorite_border';
+    likeButton.classList.toggle('liked', post.isLiked);
+    saveButton.textContent = post.isSaved ? 'bookmark' : 'bookmark_border';
+    likesCount.textContent = `${post.likes.toLocaleString()} likes`;
+}
+
 
         // Create explore item HTML
         function createExploreItemHTML(photo) {
@@ -865,6 +1530,33 @@
                 </div>
             `;
         }
+
+        function updateProfileUI() {
+    document.querySelector('.profile-avatar').src = currentUser.avatar;
+    document.querySelector('.profile-username').textContent = currentUser.username;
+    document.querySelector('.profile-name').textContent = currentUser.fullName;
+    document.querySelector('.profile-bio').innerHTML = currentUser.bio.replace(/\n/g, '<br>');
+    
+    // Update profile grid with user's posts
+    const profileGrid = document.getElementById('profile-grid');
+    profileGrid.innerHTML = currentUser.posts.map(post => `
+        <div class="explore-item">
+            <img src="${post.image}" class="explore-image" alt="Post">
+            <div class="explore-overlay">
+                <div class="explore-stats">
+                    <div class="explore-stat">
+                        <i class="material-icons">favorite</i>
+                        ${post.likes.toLocaleString()}
+                    </div>
+                    <div class="explore-stat">
+                        <i class="material-icons">chat_bubble</i>
+                        ${post.comments.toLocaleString()}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
 
         // Initialize the app
         function initializeApp() {
@@ -923,9 +1615,26 @@
                 document.getElementById('story-modal').classList.remove('active');
             });
         }
+        
+        function initializeProfileTabs() {
+            document.querySelectorAll('.profile-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    toggleProfileTab(tab.dataset.tab);
+                });
+            });
+        }
 
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', initializeApp);
+        // Modify the initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            initializeNewFeatures();
+            initializeProfileTabs();
+            updateProfileGrids();
+            
+            // Ensure currentUser has the necessary arrays
+            if (!currentUser.likedPosts) currentUser.likedPosts = [];
+            if (!currentUser.savedPosts) currentUser.savedPosts = [];
+        });
     </script>
 </body>
 </html>
